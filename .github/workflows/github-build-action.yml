@@ -1,0 +1,36 @@
+name: Build & Release SDK
+on:
+  pull_request:
+    branches:
+      - 'main'
+jobs:
+  generate_sdk:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - id: Build_with_Maven
+        run: mvn clean install
+      - name: Generate SDK Files
+        working-directory: ./openapi
+        run: |
+          mvn clean install
+          mvn exec:java "-Dnamespace=exemplar" "-DsdkVersion=0.0.1-exemplar" "-Dspec=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"
+      - name: actions/upload-artifact@v2
+        with:
+          name: sdk
+          path: ./openapi/target/sdk
+  verify_generated_sdk:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: sdk
+          path: sdk
+      - name: verify generated sdk
+        working-directory: ./sdk
+        run: mvn verify
