@@ -3,6 +3,10 @@ The generators component for the Open World<sup>TM</sup> SDK for Java.
 
 ## Generating SDKs
 
+
+
+
+
 1. Build the tooling and generator:
     ```
     ./mvnw clean install
