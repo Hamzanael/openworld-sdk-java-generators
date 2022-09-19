@@ -1,4 +1,4 @@
-name: Build & Release SDK
+name: Build & Test SDK
 on:
   pull_request:
     branches:
