@@ -22,15 +22,15 @@ jobs:
       - id: get_version
         run: |
           currentVersion=$(curl --silent https://repo1.maven.org/maven2/com/expediagroup/openworld/sdk/openworld-java-sdk-fraudprevention/maven-metadata.xml | xmllint --xpath "/metadata/versioning/latest/text()" -)
-            echo "${currentVersion:=0.0.1-alpha}"
-            lastCharacter=${currentVersion: -1}
-            re='^[0-9]+$'
-            if ! [[ $lastCharacter =~ $re ]]; then
-                  currentVersion="${currentVersion}.1"
-                  else
-                  currentVersion="${currentVersion%?}$((lastCharacter+1))"
-            fi
-          echo "::set-output name=version::$currentVersion)"
+          echo "${currentVersion:=0.0.1-alpha}"
+          lastCharacter=${currentVersion: -1}
+          re='^[0-9]+$'
+          if ! [[ $lastCharacter =~ $re ]]; then
+            currentVersion="${currentVersion}.1"
+          else
+            currentVersion="${currentVersion%?}$((lastCharacter+1))"
+          fi
+          echo "::set-output name=version::${currentVersion}"
   generate_sdk_with_auto_version:
     if: ${{ github.event.inputs.version == '' }}
     uses: ./.github/workflows/generate-sdk-actions.yml
