@@ -38,7 +38,7 @@ jobs:
           else
             currentVersion="${currentVersion%?}$((lastCharachter+1))"
           fi
-          mvn exec:java "-Dnamespace=${{ github.event.inputs.name }}" "-DsdkVersion=$currentVersion" "-Dspec=${{ github.event.inputs.fileAsBase64 }}"
+          mvn exec:java "-Dnamespace=${{ github.event.inputs.name }}" -DsdkVersion=$currentVersion "-Dspec=${{ github.event.inputs.fileAsBase64 }}"
       - uses: actions/upload-artifact@v2
         with:
           name: sdk
