@@ -4,7 +4,8 @@ on:
     inputs:
       version:
         description: 'generated sdk version'
-        required: true
+        required: false
+        default: ''
       name:
         description: 'generated sdk name'
         required: true
@@ -12,8 +13,39 @@ on:
         description: 'generated sdk file as base64 encoded'
         required: true
 jobs:
-  generate_sdk:
+  generate_sdk_with_auto_version:
     runs-on: macos-latest
+    if: ${{ github.event.inputs.version == '' }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - id: Build_with_Maven
+        run: mvn clean install
+      - name: Generate_SDK_Files
+        run: |
+          cd openapi/
+          mvn clean install
+          currentVersion=$(curl --silent https://repo1.maven.org/maven2/com/expediagroup/openworld/sdk/openworld-java-sdk-${{ github.event.inputs.name }}/maven-metadata.xml | xmllint --xpath "/metadata/versioning/latest/text()" -)
+          echo "${currentVersion:=0.0.1-alpha}"
+          lastCharacter=${currentVersion: -1}
+          re='^[0-9]+$'
+          if ! [[ $lastCharacter =~ $re ]]; then
+            currentVersion="${currentVersion}.1"
+          else
+            currentVersion="${currentVersion%?}$((lastCharachter+1))"
+          fi
+          mvn exec:java "-Dnamespace=${{ github.event.inputs.name }}" "-DsdkVersion=$currentVersion" "-Dspec=${{ github.event.inputs.fileAsBase64 }}"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: sdk
+          path: ./openapi/target/sdk
+  generate_sdk_with_provided_version:
+    runs-on: macos-latest
+    if: ${{ github.event.inputs.version != '' }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 11
@@ -33,7 +65,7 @@ jobs:
           name: sdk
           path: ./openapi/target/sdk
   deploy_sdk:
-    needs: generate_sdk
+    needs: [generate_sdk_with_auto_version,generate_sdk_with_provided_version]
     uses: ./.github/workflows/github-release-actions.yml
     secrets: inherit
   update-bom:
