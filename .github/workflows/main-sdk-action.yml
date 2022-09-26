@@ -15,7 +15,7 @@ on:
 jobs:
   generate_sdk_with_auto_version:
     if: ${{ github.event.inputs.version == '' }}
-    uses: ./.github/workflows/generated-sdk-actions.yml
+    uses: ./.github/workflows/generate-sdk-actions.yml
     with:
       version: |
         currentVersion=$(curl --silent https://repo1.maven.org/maven2/com/expediagroup/openworld/sdk/openworld-java-sdk-fraudprevention/maven-metadata.xml | xmllint --xpath "/metadata/versioning/latest/text()" -)
@@ -32,7 +32,7 @@ jobs:
       fileAsBase64: ${{ github.event.inputs.fileAsBase64 }}
   generate_sdk_with_provided_version:
     if: ${{ github.event.inputs.version != '' }}
-    uses: ./.github/workflows/generated-sdk-actions.yml
+    uses: ./.github/workflows/generate-sdk-actions.yml
     with:
       version: ${{ github.event.inputs.version }}
       name: ${{ github.event.inputs.name }}
