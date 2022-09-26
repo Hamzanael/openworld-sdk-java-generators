@@ -29,7 +29,7 @@ jobs:
                   currentVersion="${currentVersion%?}$((lastCharacter+1))"
             fi
           echo "::set-output name=version::$currentVersion)"
-      - uses: ./.github/workflows/generate-sdk-actions.yml
+      - uses: Hamzanael/openworld-sdk-java-generators/.github/workflows/generate-sdk-actions.yml@main
         with:
           version: ${{ steps.get_version.outputs.version }}
           name: ${{ github.event.inputs.name }}
