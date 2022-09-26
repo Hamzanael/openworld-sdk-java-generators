@@ -21,8 +21,7 @@ jobs:
     steps:
       - id: get_version
         run: |
-          currentVersion=$(curl --silent https://repo1.maven.org/maven2/com/expediagroup/openworld/sdk/openworld-java-sdk-fraudprevention/maven-metadata.xml | xmllint --xpath "/metadata/versioning/latest/text()" -)
-          echo "${currentVersion:=0.0.1-alpha}"
+          currentVersion=$(curl --silent https://repo1.maven.org/maven2/com/expediagroup/openworld/sdk/openworld-java-sdk-fraudprevention/maven-metadata.xml | xmllint --xpath "/metadata/versioning/latest/text()" -) || echo "${currentVersion:=0.0.1-alpha}"
           lastCharacter=${currentVersion: -1}
           re='^[0-9]+$'
           if ! [[ $lastCharacter =~ $re ]]; then
