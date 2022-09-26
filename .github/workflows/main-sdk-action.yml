@@ -16,6 +16,8 @@ jobs:
   prepare_sdk_version_if_not_provided:
     if: ${{ github.event.inputs.version == '' }}
     runs-on: macos-latest
+    outputs:
+      version: ${{ steps.prepare_sdk_version.outputs.version }}
     steps:
       - id: get_version
         run: |
@@ -32,13 +34,13 @@ jobs:
   generate_sdk_with_auto_version:
     if: ${{ github.event.inputs.version == '' }}
     uses: ./.github/workflows/generate-sdk-actions.yml
+    needs: [prepare_sdk_version_if_not_provided]
     with:
-      version: ${{jobs.prepare_sdk_version_if_not_provided.steps.get_version.outputs.version }}
+      version: ${{ needs.prepare_sdk_version_if_not_provided.outputs.version }}
       name: ${{ github.event.inputs.name }}
       fileAsBase64: ${{ github.event.inputs.fileAsBase64 }}
   generate_sdk_with_provided_version:
     if: ${{ github.event.inputs.version != '' }}
-    needs: [prepare_sdk_version_if_not_provided]
     uses: ./.github/workflows/generate-sdk-actions.yml
     with:
       version: ${{ github.event.inputs.version }}
