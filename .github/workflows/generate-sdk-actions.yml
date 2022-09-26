@@ -65,7 +65,6 @@ jobs:
           path: ./openapi/target/sdk
   deploy_sdk:
     if: success()
-    needs: [generate_sdk_with_auto_version,generate_sdk_with_provided_version]
     uses: ./.github/workflows/github-release-actions.yml
     secrets: inherit
   update-bom:
