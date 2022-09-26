@@ -64,7 +64,7 @@ jobs:
           name: sdk
           path: ./openapi/target/sdk
   deploy_sdk:
-    if: success()
+    if: ${{ always() && contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) }}
     uses: ./.github/workflows/github-release-actions.yml
     secrets: inherit
   update-bom:
