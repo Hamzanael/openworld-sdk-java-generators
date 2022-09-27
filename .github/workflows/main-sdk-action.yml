@@ -58,11 +58,11 @@ jobs:
 
   update-bom:
     if: ${{ always() && contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) }}
-    needs: [ generate_sdk_with_auto_version,generate_sdk_with_provided_version ]
+    needs: [ generate_sdk_with_auto_version,prepare_sdk_version_if_not_provided ]
     runs-on: ubuntu-latest
     steps:
       - name: Update BOM
         run: |
           currentVersion=${{ github.event.inputs.version }}
-          echo "${currentVersion:="'${{ needs.prepare_sdk_version_if_not_provided.outputs.version }}}'""
+          echo "${currentVersion:='${{ needs.prepare_sdk_version_if_not_provided.outputs.version }}}'"
           curl -X POST https://api.github.com/repos/Hamzanael/openworld-sdk-java/actions/workflows/update-bom-version-actions.yml/dispatches -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d '{"ref":"main","inputs":{"sdk-version”: ”'"$currentVersion"'” }, ”sdk-name":"openworld-java-sdk-${{ github.event.inputs.name }}”}}'
