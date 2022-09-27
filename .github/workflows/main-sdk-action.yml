@@ -54,4 +54,4 @@ jobs:
     steps:
       - name: Update BOM
         run: |
-          curl -X POST https://api.github.com/repos/Hamzanael/openworld-sdk-java/actions/workflows/update-bom-version-actions.yml/dispatches -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d '{"ref":"main","inputs":{"sdk-version”: ”${{ inputs.version }}” }, ”sdk-name":"openworld-java-sdk-${{ inputs.name }}”}}'
+          curl -X POST https://api.github.com/repos/Hamzanael/openworld-sdk-java/actions/workflows/update-bom-version-actions.yml/dispatches -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d '{"ref":"main","inputs":{"sdk-version”: ”${{ github.event.inputs.version }}” }, ”sdk-name":"openworld-java-sdk-${{ github.event.inputs.name }}}”}}'
