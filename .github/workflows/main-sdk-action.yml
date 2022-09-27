@@ -21,8 +21,8 @@ jobs:
     steps:
       - id: get_version
         run: |
-          sudo apt-get update
-          sudo apt-get -y install libxml2-utils
+          apt-get update
+          apt-get -y install libxml2-utils
           currentVersion=$(curl --silent https://repo1.maven.org/maven2/com/expediagroup/openworld/sdk/openworld-java-sdk-${{ github.event.inputs.name }}/maven-metadata.xml | xmllint --xpath "/metadata/versioning/latest/text()" -) || echo "${currentVersion:=0.0.1-alpha}"
           lastCharacter=${currentVersion: -1}
           re='^[0-9]+$'
@@ -49,9 +49,14 @@ jobs:
       version: ${{ github.event.inputs.version }}
       name: ${{ github.event.inputs.name }}
       fileAsBase64: ${{ github.event.inputs.fileAsBase64 }}
+      
   update-bom:
+    if: ${{ always() && contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) }}
+    needs: [ generate_sdk_with_auto_version,generate_sdk_with_provided_version ]
     runs-on: ubuntu-latest
     steps:
       - name: Update BOM
         run: |
-          curl -X POST https://api.github.com/repos/Hamzanael/openworld-sdk-java/actions/workflows/update-bom-version-actions.yml/dispatches -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d '{"ref":"main","inputs":{"sdk-version”: ”${{ github.event.inputs.version }}” }, ”sdk-name":"openworld-java-sdk-${{ github.event.inputs.name }}}”}}'
+          currentVersion=${{ inputs.version }}
+          echo "${currentVersion:=${{ needs.prepare_sdk_version_if_not_provided.outputs.version }}}"
+          curl -X POST https://api.github.com/repos/ExpediaGroup/openworld-sdk-java/actions/workflows/update-bom-version-actions.yml/dispatches -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d '{"ref":"main","inputs":{"sdk-version”: ”${{ inputs.version }}” }, ”sdk-name":"openworld-java-sdk-${{ inputs.name }}”}}'
