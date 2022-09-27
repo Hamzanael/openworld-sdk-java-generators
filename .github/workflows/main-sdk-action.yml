@@ -15,12 +15,14 @@ on:
 jobs:
   prepare_sdk_version_if_not_provided:
     if: ${{ github.event.inputs.version == '' }}
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
       - id: get_version
         run: |
+          apt-get update
+          apt-get -y install libxml2-utils
           currentVersion=$(curl --silent https://repo1.maven.org/maven2/com/expediagroup/openworld/sdk/openworld-java-sdk-${{ github.event.inputs.name }}/maven-metadata.xml | xmllint --xpath "/metadata/versioning/latest/text()" -) || echo "${currentVersion:=0.0.1-alpha}"
           lastCharacter=${currentVersion: -1}
           re='^[0-9]+$'
@@ -30,35 +32,26 @@ jobs:
             currentVersion="${currentVersion%?}$((lastCharacter+1))"
           fi
           echo "::set-output name=version::${currentVersion}"
+
   generate_sdk_with_auto_version:
     if: ${{ github.event.inputs.version == '' }}
-    uses: ./.github/workflows/generate-sdk-actions.yml
-    needs: [prepare_sdk_version_if_not_provided]
+    uses: ./.github/workflows/generate-sdk-action.yml
+    needs: [ prepare_sdk_version_if_not_provided ]
     with:
       version: ${{ needs.prepare_sdk_version_if_not_provided.outputs.version }}
       name: ${{ github.event.inputs.name }}
       fileAsBase64: ${{ github.event.inputs.fileAsBase64 }}
+
   generate_sdk_with_provided_version:
     if: ${{ github.event.inputs.version != '' }}
-    uses: ./.github/workflows/generate-sdk-actions.yml
+    uses: ./.github/workflows/generate-sdk-action.yml
     with:
       version: ${{ github.event.inputs.version }}
       name: ${{ github.event.inputs.name }}
       fileAsBase64: ${{ github.event.inputs.fileAsBase64 }}
-
-  deploy_sdk:
-    if: ${{ always() && contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) }}
-    needs: [ generate_sdk_with_auto_version,generate_sdk_with_provided_version ]
-    uses: ./.github/workflows/github-release-actions.yml
-    secrets: inherit
   update-bom:
-    needs: deploy_sdk
     runs-on: ubuntu-latest
     steps:
       - name: Update BOM
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: 'https://api.github.com/repos/ExpediaGroup/openworld-sdk-java/actions/workflows/update-bom-version-actions.yml/dispatches'
-          method: 'POST'
-          customHeaders: '{"Authorization": "${{secrets.CUSTOM_TOKEN}}","Accept": "application/vnd.github+json"}'
-          data: '{"ref":"main","inputs":{"sdk-version":"${{ inputs.version }}","sdk-name":"openworld-java-sdk-${{ inputs.name }}"}}'
+        run: |
+          curl -X POST https://api.github.com/repos/Hamzanael/openworld-sdk-java/actions/workflows/update-bom-version-actions.yml/dispatches -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d '{"ref":"main","inputs":{"sdk-version”: ”${{ inputs.version }}” }, ”sdk-name":"openworld-java-sdk-${{ inputs.name }}”}}'
