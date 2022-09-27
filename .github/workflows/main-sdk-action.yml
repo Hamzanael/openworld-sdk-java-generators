@@ -21,8 +21,8 @@ jobs:
     steps:
       - id: get_version
         run: |
-          apt-get update
-          apt-get -y install libxml2-utils
+          sudo apt-get update
+          sudo apt-get -y install libxml2-utils
           currentVersion=$(curl --silent https://repo1.maven.org/maven2/com/expediagroup/openworld/sdk/openworld-java-sdk-${{ github.event.inputs.name }}/maven-metadata.xml | xmllint --xpath "/metadata/versioning/latest/text()" -) || echo "${currentVersion:=0.0.1-alpha}"
           lastCharacter=${currentVersion: -1}
           re='^[0-9]+$'
@@ -49,10 +49,15 @@ jobs:
       version: ${{ github.event.inputs.version }}
       name: ${{ github.event.inputs.name }}
       fileAsBase64: ${{ github.event.inputs.fileAsBase64 }}
-      
-  update-bom:
+
+  deploy_sdk:
     if: ${{ always() && contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) }}
     needs: [ generate_sdk_with_auto_version,generate_sdk_with_provided_version ]
+    uses: ./.github/workflows/github-release-actions.yml
+    secrets: inherit
+
+  update-bom:
+    needs: deploy_sdk
     runs-on: ubuntu-latest
     steps:
       - name: Update BOM
