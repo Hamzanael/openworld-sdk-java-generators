@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest  # windows-latest | macos-latest
+    name: Test changed-files
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v22.2
+
+      - name: List all changed files
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+          sudo add-apt-repository ppa:rmescandon/yq
+          sudo apt update
+          sudo apt install yq -y
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            zip $file.zip $file
+            sdkKey=`yq '.x-sdk-key' $file`
+            zippedFile=`base64 $file.zip`
+            curl -X POST https://api.github.com/repos/Hamzanael/openworld-sdk-java/actions/workflows/main-sdk-action.yml/dispatches -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d  '{"ref":"main","inputs":{"fileAsBase64": "'"$zippedFile"'" , "name":"'"$sdkKey"'"}}'
+          done
