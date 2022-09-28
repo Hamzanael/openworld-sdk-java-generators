@@ -12,6 +12,7 @@ info:
 servers:
   - url: "https://example.com"
 tags:
+
   - name: Exemplar
     description: APIs to manage users.
 paths:
