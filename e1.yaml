@@ -11,6 +11,7 @@ info:
   x-eg-api-tags: [ "platform-control-plane", "exemplar" ]
 servers:
   - url: "https://example.com"
+  
 tags:
   - name: Exemplar
     description: APIs to manage users.
