@@ -24,8 +24,11 @@ jobs:
           sudo apt update
           sudo apt install yq -y
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            zip $file.zip $file
-            sdkKey=`yq '.x-sdk-key' $file`
-            zippedFile=`base64 $file.zip`
-            curl -X POST https://api.github.com/repos/Hamzanael/openworld-sdk-java/actions/workflows/main-sdk-action.yml/dispatches -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d  '{"ref":"main","inputs":{"fileAsBase64": "'"$zippedFile"'" , "name":"'"$sdkKey"'"}}'
+            echo $file
+            if [[ $file == *.yaml ]] || [[ $file == *.yml ]]; then
+              sdkKey=`yq '.x-sdk-key' $file`
+              zip $file.zip $file
+              zippedFile=`base64 $file.zip`
+              curl -X POST https://api.github.com/repos/Hamzanael/openworld-sdk-java/actions/workflows/main-sdk-action.yml/dispatches -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d  '{"ref":"main","inputs":{"fileAsBase64": "'"$zippedFile"'" , "name":"'"$sdkKey"'"}}'
+            fi
           done
