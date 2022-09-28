@@ -50,6 +50,7 @@ paths:
       security:
         - EgTokenAuth:
             - control-plane.exemplar.read
+            
 components:
   securitySchemes:
     EgTokenAuth:
