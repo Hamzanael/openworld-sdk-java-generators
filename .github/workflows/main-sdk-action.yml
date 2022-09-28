@@ -40,7 +40,7 @@ jobs:
     uses: ./.github/workflows/generate-sdk-action.yml
     needs: [ prepare_sdk_version ]
     with:
-      version: ${{ needs.prepare_sdk_version_if_not_provided.outputs.version }}
+      version: ${{ needs.prepare_sdk_version.outputs.version }}
       name: ${{ github.event.inputs.name }}
       fileAsBase64: ${{ github.event.inputs.fileAsBase64 }}
 
