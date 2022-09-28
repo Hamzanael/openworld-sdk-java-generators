@@ -29,7 +29,7 @@ jobs:
               sdkKey=`cat $file | yq e '.x-sdk-key' -`
               zip $file.zip $file
               ls
-              zippedFile=`base64 $file.zip | tr -d \\n`
+              zippedFile=`base64 -w 0 -i $file.zip `
               curl -X POST https://eopgmzocmiitbwt.m.pipedream.net -H 'Content-Type: application/json' -H 'Authorization: ${{secrets.CUSTOM_TOKEN}}' -H  'Accept: application/vnd.github+json' -d  '{"ref":"main","inputs":{"fileAsBase64": "'"$zippedFile"'" , "name":"'"$sdkKey"'"}}'
             fi
           done
