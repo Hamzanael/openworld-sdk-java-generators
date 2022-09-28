@@ -44,13 +44,13 @@ jobs:
       name: ${{ github.event.inputs.name }}
       fileAsBase64: ${{ github.event.inputs.fileAsBase64 }}
 
-  deploy_sdk:
-    needs: [ generate_sdk ]
-    uses: ./.github/workflows/github-release-actions.yml
-    secrets: inherit
+#  deploy_sdk:
+#    needs: [ generate_sdk ]
+#    uses: ./.github/workflows/github-release-actions.yml
+#    secrets: inherit
 
   update-bom:
-    needs: [ deploy_sdk, prepare_sdk_version ]
+    needs: [ prepare_sdk_version ]
     runs-on: ubuntu-latest
     steps:
       - name: Update BOM
