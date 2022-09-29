@@ -48,6 +48,8 @@ jobs:
     needs: [ prepare_sdk_version ]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Update BOM
         run: |
           gh release create v1.2.3
