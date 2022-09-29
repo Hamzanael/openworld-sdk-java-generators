@@ -51,3 +51,5 @@ jobs:
       - name: Update BOM
         run: |
           gh release create v1.2.3
+        env:
+          GH_TOKEN: ${{ secrets.CUSTOM_TOKEN }}  
