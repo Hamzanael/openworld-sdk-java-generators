@@ -1,8 +1,11 @@
 name: Build & Test SDK
 on:
-  pull_request:
-    branches:
-      - 'main'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'generated sdk version'
+        required: false
+        default: ''
 jobs:
   generate-sdk:
     runs-on: macos-latest
